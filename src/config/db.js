@@ -6,6 +6,8 @@ export async function connectDB() {
     throw new Error("MONGODB_URI is not defined");
   }
 
-  await mongoose.connect(uri);
+  await mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 5000,
+  });
   console.log("MongoDB connected");
 }
