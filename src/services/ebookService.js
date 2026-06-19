@@ -22,7 +22,12 @@ export async function getEbooks(query, user) {
   }
 
   if (genre) filter.genre = new RegExp(genre, "i");
-  if (search) filter.$text = { $search: search };
+  if (search) {
+    filter.$or = [
+      { title: new RegExp(search, "i") },
+      { writerName: new RegExp(search, "i") },
+    ];
+  }
   if (minPrice !== undefined || maxPrice !== undefined) {
     filter.price = {};
     if (minPrice !== undefined) filter.price.$gte = Number(minPrice);

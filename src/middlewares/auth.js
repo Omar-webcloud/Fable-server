@@ -37,3 +37,20 @@ function requireRole(...roles) {
 export const verifyAdmin = requireRole("admin");
 export const verifyWriter = requireRole("writer", "admin");
 export const verifyUser = requireRole("user", "writer", "admin");
+
+export async function optionalJWT(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    const token =
+      authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : req.cookies?.token;
+
+    if (token) {
+      const decoded = verifyToken(token);
+      const user = await User.findById(decoded.id).select("-password");
+      if (user) req.user = user;
+    }
+  } catch {
+    // Public routes continue without a user
+  }
+  next();
+}
