@@ -9,9 +9,14 @@ import { errorHandler, notFound } from "./middlewares/errorHandler.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+let clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+if (clientUrl.endsWith("/")) {
+  clientUrl = clientUrl.slice(0, -1);
+}
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: clientUrl,
     credentials: true,
   })
 );
