@@ -21,6 +21,11 @@ app.use("/api/webhooks/stripe", express.raw({ type: "application/json" }));
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.get("/", (req, res) => {
+  res.json({ status: "success", message: "Fable API is running!" });
+});
+
 app.use(routes);
 app.use(notFound);
 app.use(errorHandler);
