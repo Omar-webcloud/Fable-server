@@ -30,6 +30,27 @@ export async function login(req, res, next) {
   }
 }
 
+export async function googleLogin(req, res, next) {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) {
+      const err = new Error("Google ID Token is required");
+      err.status = 400;
+      throw err;
+    }
+    const result = await authService.googleLogin(idToken);
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function logout(req, res) {
   res.clearCookie("token");
   res.json({ message: "Logged out successfully" });

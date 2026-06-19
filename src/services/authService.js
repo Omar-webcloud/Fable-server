@@ -49,6 +49,48 @@ export async function login({ email, password }) {
   return { user: sanitizeUser(user), token };
 }
 
+export async function googleLogin(idToken) {
+  const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+  if (!response.ok) {
+    const err = new Error("Invalid Google ID Token");
+    err.status = 401;
+    throw err;
+  }
+
+  const payload = await response.json();
+
+  // Validate Audience (Client ID)
+  const clientID = process.env.GOOGLE_CLIENT_ID;
+  if (clientID && payload.aud !== clientID) {
+    const err = new Error("Token audience mismatch");
+    err.status = 401;
+    throw err;
+  }
+
+  const { email, name, picture } = payload;
+  if (!email) {
+    const err = new Error("Email not provided by Google");
+    err.status = 400;
+    throw err;
+  }
+
+  let user = await User.findOne({ email });
+  if (!user) {
+    user = await User.create({
+      name: name || email.split("@")[0],
+      email,
+      image: picture || "",
+      role: ROLES.USER,
+    });
+  } else if (picture && !user.image) {
+    user.image = picture;
+    await user.save();
+  }
+
+  const token = signToken({ id: user._id, email: user.email, role: user.role });
+  return { user: sanitizeUser(user), token };
+}
+
 export async function getMe(userId) {
   const user = await User.findById(userId).populate("bookmarks purchasedBooks");
   if (!user) {
