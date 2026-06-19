@@ -1,4 +1,4 @@
-# 📚 Fable Server
+#  Fable Server
 
 Backend API for Fable Ebook Sharing Platform.
 
