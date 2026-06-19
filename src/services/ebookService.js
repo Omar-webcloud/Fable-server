@@ -17,8 +17,12 @@ export async function getEbooks(query, user) {
 
   if (!user || (user.role !== "admin" && user.role !== "writer")) {
     filter.status = EBOOK_STATUS.PUBLISHED;
-  } else if (availability === "available") {
+  }
+
+  if (availability === "in_stock" || availability === "instock") {
     filter.status = EBOOK_STATUS.PUBLISHED;
+  } else if (availability === "sold") {
+    filter.totalSales = { $gt: 0 };
   }
 
   if (genre) filter.genre = new RegExp(genre, "i");
