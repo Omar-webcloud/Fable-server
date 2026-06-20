@@ -22,9 +22,11 @@ export async function getByUser(req, res, next) {
 export async function createCheckout(req, res, next) {
   try {
     const { ebookId } = checkoutSchema.parse(req.body);
+    const clientOrigin = req.get("origin");
     const session = await purchaseService.createCheckoutSession(
       ebookId,
-      req.user
+      req.user,
+      clientOrigin
     );
     res.json(session);
   } catch (err) {

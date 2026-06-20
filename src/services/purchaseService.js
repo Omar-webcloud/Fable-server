@@ -15,7 +15,7 @@ export async function getUserPurchases(userId) {
     .sort({ purchaseDate: -1 });
 }
 
-export async function createCheckoutSession(ebookId, user) {
+export async function createCheckoutSession(ebookId, user, clientOrigin) {
   const stripe = getStripe();
   if (!stripe) {
     const err = new Error("Stripe is not configured");
@@ -46,7 +46,10 @@ export async function createCheckoutSession(ebookId, user) {
     throw err;
   }
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  let clientUrl = clientOrigin || process.env.CLIENT_URL || "http://localhost:3000";
+  if (clientUrl.endsWith("/")) {
+    clientUrl = clientUrl.slice(0, -1);
+  }
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
